@@ -1,47 +1,197 @@
-Vulnerability Assessment and Penetration Testing - Drozer Guide
+# drozer
 
-Overview
+drozer is a security testing framework for Android.
 
-This document provides a comprehensive guide to using Drozer for Android penetration testing. Drozer is a powerful security assessment framework that enables testers and researchers to interact with Android components to identify vulnerabilities.
+drozer allows you to search for security vulnerabilities in apps and devices by assuming the role of an app and interacting with the Android Runtime, other apps' IPC endpoints and the underlying OS.
 
-The document includes:
-	•	Introduction to Drozer
-	•	Prerequisites for installation
-	•	Step-by-step installation and configuration guide
-	•	Instructions for setting up Drozer on Android devices
+drozer provides tools to help you use, share and understand public Android exploits.
 
-Contents
+drozer is open source software, maintained by WithSecure, and can be downloaded from: [https://labs.withsecure.com/tools/drozer/](https://labs.withsecure.com/tools/drozer/)
 
-	1.	Introduction
-	•	Overview of Drozer and its key functionalities.
-	•	Importance in Android application security.
-	2.	Prerequisites
-	•	Python environment setup (preferably Python 2.x).
-	•	Installation of Java Development Kit (JDK) 8 or higher.
-	•	Android Debug Bridge (ADB) and Android SDK tools setup.
-	3.	Installation Steps
-	•	Detailed Python and Drozer installation commands.
-	•	Configuration of Java and Android SDK tools.
-	4.	Device Configuration
-	•	Enabling Developer Mode and USB Debugging on Android devices.
-	•	Installation and operation of the Drozer Agent.
-	5.	Testing Setup
-	•	Binding Drozer with the host machine using ADB commands.
-	•	Initiating and verifying the Drozer console connection.
+## NOTE
 
-How to Use This Guide
+This is an BETA release of a rewritten drozer version; this version is updated to support python3.
 
-	•	Follow the step-by-step instructions to set up your environment for Android penetration testing.
-	•	Use the prerequisites section to ensure your setup is correctly configured.
-	•	Run Drozer commands as described to test vulnerabilities in Android apps.
+Currently, the following known issues are present:
 
-Authors
+- Building of custom agents functionality will crash the drozer client. This functionality is considered out of scope for the beta release of the revived drozer project.
 
-	•	Jawakar Sri
+## Docker Container
 
+To help with making sure drozer can be run on all systems, a Docker container was created that has a working build of drozer.
 
-This guide was prepared as part of the End-Semester Lab Exam for the course 20CYS432: Vulnerability Assessment and Penetration Testing.
+* The Docker container and basic setup instructions can be found [here](https://hub.docker.com/r/withsecurelabs/drozer).
+* Instructions on building your own Docker container can be found [here](https://github.com/WithSecureLabs/drozer/tree/develop/docker).
 
-License
+## Manual Building and Installation
 
-This document is for educational purposes. Use Drozer responsibly and only on applications and systems you have permission to test.
+### Software pre-requisites
+
+1. [Python3.8](https://www.python.org/downloads/)
+2. [Protobuf](https://pypi.python.org/pypi/protobuf) 4.25.2 or greater
+3. [Pyopenssl](https://pypi.python.org/pypi/pyOpenSSL) 22.0.0 or greater
+4. [Twisted](https://pypi.python.org/pypi/Twisted) 18.9.0 or greater
+4. [Distro](https://pypi.org/project/distro/) 1.8.0 or greater
+5. [Java Development Kit](https://adoptopenjdk.net/releases.html) 11 or greater
+
+### Installing
+
+You can use `pip` or `pipx` (preferably, if available) to install the latest release of drozer from PyPI:
+
+```shell
+pipx install drozer
+```
+
+Alternatively, you can download individual [releases](https://github.com/WithSecureLabs/drozer/releases/) from GitHub and run:
+
+```shell
+pipx install ./drozer-*.whl
+```
+
+If you haven't already, consider running:
+```shell
+pipx ensurepath
+```
+
+to ensure `pipx`-installed packages appear in your `PATH`
+
+## Building
+
+To build drozer from source you can run.
+
+```shell
+git clone https://github.com/WithSecureLabs/drozer.git
+cd drozer
+pip install .
+```
+
+To build the Android native components against a specific SDK you can set the `ANDROID_SDK` environment variable to the path. For example:
+
+**Linux/macOS:**
+```shell
+export ANDROID_SDK=/home/drozerUser/Android/Sdk/platforms/android-34/android.jar
+```
+
+**Windows - PowerShell:**
+```powershell
+New-Item -Path Env:\ANDROID_SDK -Value 'C:\Users\drozerUser\AppData\Local\Android\sdk\platforms\android-34\android.jar'
+```
+
+**Windows - cmd:**
+```cmd
+set ANDROID_SDK = "C:\Users\drozerUser\AppData\Local\Android\sdk\platforms\android-34\android.jar"
+```
+
+ The location of the `d8` tool used can also be changed by setting `D8`.
+
+## Usage
+
+### Installing the Agent
+
+drozer can be installed using Android Debug Bridge (adb).
+
+Download the latest drozer Agent [here](https://github.com/WithSecureLabs/drozer-agent/releases/latest).
+
+```shell
+adb install drozer-agent.apk
+```
+
+### Setup for session
+
+You should now have the drozer Console installed on your PC, and the Agent running on your test device. Now, you need to connect the two and you’re ready to start exploring.
+
+We will use the server embedded in the drozer Agent to do this. First, launch the Agent, select the "Embedded Server" option and tap "Enable" to start the server. You should see a notification that the server has started. 
+
+Then, follow one of the options below.
+
+#### Option 1: Connect to the phone via network
+
+By default, the drozer Agent listens for incoming TCP connections on all interfaces on port 31415. In order to connect to the Agent, run the following command:
+
+```
+drozer console connect --server <phone's IP address>
+```
+
+If you are using the Docker container, the equivalent command would be:
+
+```
+docker run --net host -it withsecurelabs/drozer console connect --server <phone's IP address>
+```
+
+#### Option 2: Connect to the phone via USB
+
+In some scenarios, connecting to the device over the network may not be viable. In these scenarios, we can leverage `adb`'s port-forwarding capabilities to establish a connection over USB.
+
+First, you need to set up a suitable port forward so that your PC can connect to a TCP socket opened by the Agent inside the emulator, or on the device. By default, drozer uses port 31415
+
+```shell
+adb forward tcp:31415 tcp:31415
+```
+
+You can now connect to the drozer Agent by connecting to `localhost` (or simply not specifying the target IP)
+
+```shell
+drozer console connect
+```
+
+### Confirming a successful connection
+
+You should be presented with a drozer command prompt:
+
+```
+Selecting ebe9fcc0c47b28da (Google sdk_gphone64_x86_64 12)
+
+            ..                    ..:.
+           ..o..                  .r..
+            ..a..  . ....... .  ..nd
+              ro..idsnemesisand..pr
+              .otectorandroidsneme.
+           .,sisandprotectorandroids+.
+         ..nemesisandprotectorandroidsn:.
+        .emesisandprotectorandroidsnemes..
+      ..isandp,..,rotecyayandro,..,idsnem.
+      .isisandp..rotectorandroid..snemisis.
+      ,andprotectorandroidsnemisisandprotec.
+     .torandroidsnemesisandprotectorandroid.
+     .snemisisandprotectorandroidsnemesisan:
+     .dprotectorandroidsnemesisandprotector.
+
+drozer Console (v3.0.0)
+dz>
+```
+The prompt confirms the Android ID of the device you have connected to, along with the manufacturer, model and Android software version.
+
+You are now ready to start exploring the device.
+
+### Command Reference
+
+| Command        | Description           |
+| ------------- |:-------------|
+| run  | Executes a drozer module
+| list | Show a list of all drozer modules that can be executed in the current session. This hides modules that you do not have suitable permissions to run. | 
+| shell | Start an interactive Linux shell on the device, in the context of the Agent process. | 
+| cd | Mounts a particular namespace as the root of session, to avoid having to repeatedly type the full name of a module. | 
+| clean | Remove temporary files stored by drozer on the Android device. | 
+| contributors | Displays a list of people who have contributed to the drozer framework and modules in use on your system. | 
+| echo | Print text to the console. | 
+| exit | Terminate the drozer session. | 
+| help | Display help about a particular command or module. | 
+| load | Load a file containing drozer commands, and execute them in sequence. | 
+| module | Find and install additional drozer modules from the Internet. | 
+| permissions | Display a list of the permissions granted to the drozer Agent. | 
+| set | Store a value in a variable that will be passed as an environment variable to any Linux shells spawned by drozer. | 
+| unset | Remove a named variable that drozer passes to any Linux shells that it spawns. | 
+
+## License
+
+drozer is released under a 3-clause BSD License. See LICENSE for full details.
+
+## Contacting the Project
+
+drozer is Open Source software, made great by contributions from the community.
+
+For full source code, to report bugs, suggest features and contribute patches please see our Github project:
+
+  <https://github.com/WithSecureLabs/drozer>
+
+Bug reports, feature requests, comments and questions can be submitted [here](https://github.com/WithSecureLabs/drozer/issues).
