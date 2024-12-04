@@ -192,6 +192,6 @@ drozer is Open Source software, made great by contributions from the community.
 
 For full source code, to report bugs, suggest features and contribute patches please see our Github project:
 
-  <https://github.com/WithSecureLabs/drozer>
+  <https://github.com/jawakarsri/Drozer>
 
-Bug reports, feature requests, comments and questions can be submitted [here](https://github.com/WithSecureLabs/drozer/issues).
+Bug reports, feature requests, comments and questions can be submitted [here](https://github.com/jawakarsri/drozer/issues).
