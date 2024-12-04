@@ -1,12 +1,12 @@
-# drozer
+# Drozer
 
-drozer is a security testing framework for Android.
+Drozer is a security testing framework for Android.
 
-drozer allows you to search for security vulnerabilities in apps and devices by assuming the role of an app and interacting with the Android Runtime, other apps' IPC endpoints and the underlying OS.
+Drozer allows you to search for security vulnerabilities in apps and devices by assuming the role of an app and interacting with the Android Runtime, other apps' IPC endpoints and the underlying OS.
 
-drozer provides tools to help you use, share and understand public Android exploits.
+Drozer provides tools to help you use, share and understand public Android exploits.
 
-drozer is open source software, maintained by WithSecure, and can be downloaded from: [https://labs.withsecure.com/tools/drozer/](https://labs.withsecure.com/tools/drozer/)
+Drozer is open source software, maintained by WithSecure, and can be downloaded from: [https://labs.withsecure.com/tools/drozer/](https://labs.withsecure.com/tools/drozer/)
 
 ## NOTE
 
